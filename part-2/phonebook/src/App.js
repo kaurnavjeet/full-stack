@@ -1,17 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
+import axios from "axios";
 import AddContact from "./components/AddContact";
 import SearchFilter from "./components/SearchFilter";
 import Contacts from "./components/Contacts";
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "510-555-5555" },
-    { name: "Arthur Peter", number: "510-666-6666" }
-  ]);
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [search, setNewSearch] = useState("");
+
+  useEffect(() => {
+    axios.get("http://localhost:3001/persons").then(response => {
+      setPersons(response.data);
+    });
+  }, []);
 
   const handleFilter = e => {
     setNewSearch(e.target.value);
