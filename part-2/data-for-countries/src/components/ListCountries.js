@@ -1,10 +1,24 @@
 import React from "react";
 
-const ListCountries = ({ countries }) => {
+import { Button } from "react-bootstrap";
+
+const ListCountries = ({ countries, handleClick }) => {
   return (
     <div>
       {countries.map(country => (
-        <p key={country.area}>{country.name}</p>
+        <ul key={country.area}>
+          <li>
+            {country.name}{" "}
+            <Button
+              className="showButton"
+              variant="outline-info"
+              onClick={handleClick}
+              country={country.name}
+            >
+              Show
+            </Button>
+          </li>
+        </ul>
       ))}
     </div>
   );

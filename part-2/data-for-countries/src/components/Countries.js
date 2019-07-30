@@ -2,7 +2,7 @@ import React from "react";
 import Country from "./Country";
 import ListCountries from "./ListCountries";
 
-const Countries = ({ countries, search }) => {
+const Countries = ({ countries, search, handleClick }) => {
   let countriesToDisplay = countries;
 
   if (search) {
@@ -25,7 +25,7 @@ const Countries = ({ countries, search }) => {
 
   return (
     <div>
-      <ListCountries countries={countriesToDisplay} />
+      <ListCountries countries={countriesToDisplay} handleClick={handleClick} />
     </div>
   );
 };
