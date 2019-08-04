@@ -1,7 +1,7 @@
 import React from "react";
 import Contact from "./Contact";
 
-const Contacts = ({ persons, search }) => {
+const Contacts = ({ persons, search, handleDelete }) => {
   return (
     <div>
       {persons
@@ -10,7 +10,7 @@ const Contacts = ({ persons, search }) => {
         )
         .map(person => (
           <div key={person.id}>
-            <Contact person={person} />
+            <Contact person={person} handleDelete={handleDelete}/>
           </div>
         ))}
     </div>

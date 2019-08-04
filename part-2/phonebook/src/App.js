@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
-import axios from "axios";
+
+import phoneBookService from './services/phonebook'
 import AddContact from "./components/AddContact";
 import SearchFilter from "./components/SearchFilter";
 import Contacts from "./components/Contacts";
@@ -12,8 +13,9 @@ const App = () => {
   const [search, setNewSearch] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons").then(response => {
-      setPersons(response.data);
+    phoneBookService.getAll()
+    .then(initialContacts => {
+      setPersons(initialContacts);
     });
   }, []);
 
@@ -29,26 +31,61 @@ const App = () => {
     setNewNumber(e.target.value);
   };
 
-  const handleSubmit = e => {
-    e.preventDefault();
+  // const getMaxId = () => {
+  //   const allIds = persons.map(person => {
+  //     return person.id
+  //   })
+  //   const maxId = Math.max(...allIds)
+  //   return maxId + 1
+  // }
+ 
 
-    persons.forEach(person => {
-      if (person.name === newName) {
-        window.alert(`${newName} is already added to Phonebook`);
-      } else if (person.number === newNumber) {
-        window.alert(`${newNumber} is already added to Phonebook`);
-      } else {
+
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const duplicates = persons.filter(person => person.name === newName)
         const newPerson = {
           name: newName,
-          number: newNumber
+          number: newNumber,
+         
         };
-        setPersons(persons.concat(newPerson));
-      }
-    });
+
+        if(duplicates.length) {
+          const numConfirm = window.confirm(`${newName} is already added to Phonebook, replace the old number with a new one?`)
+
+          if(numConfirm) {
+            phoneBookService.update(duplicates[0].id, newPerson).then(updatedContact => {
+                  setPersons(persons.map(person => { return person.id === updatedContact.id ? updatedContact : person}))
+                }).catch(error => {
+                  window.alert(`${newName} is already deleted from phonebook.`)
+                  setPersons(persons.filter(p => p.id !== duplicates[0].id))
+                })
+          }
+        } else {
+        phoneBookService.create(newPerson).then(returnedContact => {
+          setPersons(persons.concat(returnedContact))
+        
+      })
+    }
 
     setNewName("");
     setNewNumber("");
   };
+
+  const handleDelete = (e, person) => {
+    e.preventDefault()
+
+    const confirmation = window.confirm(`Delete ${person.name}?`)
+
+    if(confirmation) {
+    phoneBookService.deletePerson(person.id).then(returnedContact => {
+      setPersons(persons.filter(p => p.id !== person.id))
+    }).catch(error => {
+      console.log(error)
+    })
+  }
+  }
 
   return (
     <div>
@@ -63,7 +100,7 @@ const App = () => {
         newNumber={newNumber}
       />
       <h2>Contacts</h2>
-      <Contacts persons={persons} search={search} />
+      <Contacts persons={persons} search={search} handleDelete={handleDelete}/>
     </div>
   );
 };
