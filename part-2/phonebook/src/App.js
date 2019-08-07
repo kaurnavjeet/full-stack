@@ -12,7 +12,7 @@ import phoneBookService from "./services/phonebook";
 import AddContact from "./components/AddContact";
 import SearchFilter from "./components/SearchFilter";
 import Contacts from "./components/Contacts";
-import Notifications from "./components/Notifications";
+import Notifs from "./components/Notifs";
 
 const headerStyles = makeStyles(theme => ({
   root: {
@@ -114,14 +114,8 @@ const formStyles = makeStyles(theme => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1)
   },
-  dense: {
-    marginTop: theme.spacing(2)
-  },
   menu: {
     width: 200
-  },
-  fab: {
-    margin: theme.spacing(2)
   }
 }));
 
@@ -134,6 +128,7 @@ const App = () => {
     message: null,
     type: null
   });
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     phoneBookService.getAll().then(initialContacts => {
@@ -153,8 +148,18 @@ const App = () => {
     setNewNumber(e.target.value);
   };
 
+  const handleOpen = (e, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
+
   const handleSubmit = e => {
     e.preventDefault();
+    if (!newName || !newNumber) {
+      return false;
+    }
     const duplicates = persons.filter(person => person.name === newName);
     const newPerson = {
       name: newName,
@@ -181,8 +186,10 @@ const App = () => {
               message: `${newName} was successfully updated`,
               type: "success"
             });
+            setOpen(true);
             setTimeout(() => {
               setNotification({ message: null, type: null });
+              setOpen(false);
             }, 5000);
           })
           .catch(error => {
@@ -190,8 +197,10 @@ const App = () => {
               message: `${newName} is already deleted from phonebook.`,
               type: "error"
             });
+            setOpen(true);
             setTimeout(() => {
               setNotification({ message: null, type: null });
+              setOpen(false);
             }, 5000);
             setPersons(persons.filter(p => p.id !== duplicates[0].id));
           });
@@ -205,8 +214,10 @@ const App = () => {
             message: `${newName} was successfully added to the phonebook`,
             type: "success"
           });
+          setOpen(true);
           setTimeout(() => {
-            setNotification({ message: null, type: null });
+            setNotification({ open: false, message: null, type: null });
+            setOpen(false);
           }, 5000);
         })
         .catch(error => {
@@ -214,8 +225,10 @@ const App = () => {
             message: `${newName} could not be added to the phonebook`,
             type: "error"
           });
+          setOpen(true);
           setTimeout(() => {
-            setNotification({ message: null, type: null });
+            setNotification({ open: false, message: null, type: null });
+            setOpen(false);
           });
         });
     }
@@ -238,8 +251,10 @@ const App = () => {
             message: `${person.name} was successfully deleted from phonebook`,
             type: "success"
           });
+          setOpen(true);
           setTimeout(() => {
             setNotification({ message: null, type: null });
+            setOpen(false);
           }, 5000);
         })
         .catch(error => {
@@ -247,8 +262,10 @@ const App = () => {
             message: `${person.name} could not be deleted from phonebook`,
             type: "error"
           });
+          setOpen(true);
           setTimeout(() => {
-            setNotification({ message: null, type: null });
+            setNotification({ open: false, message: null, type: null });
+            setOpen(false);
           }, 5000);
         });
     }
@@ -286,8 +303,6 @@ const App = () => {
           </Toolbar>
         </AppBar>
       </div>
-      {/* <Container maxWidth="lg"> */}
-      <Notifications message={notification.message} type={notification.type} />
 
       <AddContact
         handleSubmit={handleSubmit}
@@ -297,18 +312,26 @@ const App = () => {
         newNumber={newNumber}
         formClasses={formClasses}
       />
-      <Typography className={classes.title} variant="h6" noWrap>
-        Contacts
-      </Typography>
-      <Contacts
-        persons={persons}
-        search={search}
-        handleDelete={handleDelete}
-        tableClasses={tableClasses}
-        StyledTableCell={StyledTableCell}
-        StyledTableRow={StyledTableRow}
+
+      <Container maxWidth="lg">
+        <Typography className={classes.title} variant="h6" noWrap>
+          Contacts
+        </Typography>
+        <Contacts
+          persons={persons}
+          search={search}
+          handleDelete={handleDelete}
+          tableClasses={tableClasses}
+          StyledTableCell={StyledTableCell}
+          StyledTableRow={StyledTableRow}
+        />
+      </Container>
+      <Notifs
+        open={open}
+        type={notification.type}
+        message={notification.message}
+        handleOpen={handleOpen}
       />
-      {/* </Container> */}
     </div>
   );
 };
