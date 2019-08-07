@@ -7,9 +7,7 @@ import AddIcon from "@material-ui/icons/Add";
 const styles = {
   center: {
     marginTop: "16px",
-    marginLeft: "auto",
-    marginBottom: 0,
-    marginRight: "auto"
+    marginLeft: "16px"
   }
 };
 
@@ -28,6 +26,7 @@ const AddContact = ({
       direction="row"
       alignItems="center"
       justify="center"
+      style={styles.center}
     >
       <Grid item xs={6}>
         <form className={formClasses.container} noValidate autoComplete="off">
